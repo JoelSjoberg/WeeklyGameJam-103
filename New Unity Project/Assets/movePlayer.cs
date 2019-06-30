@@ -41,15 +41,14 @@ public class movePlayer : MonoBehaviour, movement
         gameMaster.startWait();
     }
 
-    public void loop()
+    public void setIterationPoint()
     {
-        // reset reader, -1 because the reader will be incremented directly after this
-        reader = loopPoint-1;
+        iterationPoint = writer;
     }
 
     public void setLoopPoint()
     {
-        loopPoint = reader + 1;
+        loopPoint = writer;
     }
 
     public void undo()
@@ -67,7 +66,7 @@ public class movePlayer : MonoBehaviour, movement
     }
 
     // method variables
-    int reader, writer, loopPoint;
+    int reader, writer, loopPoint, iterationPoint;
 
     System.Action[] buffer;
 
@@ -82,16 +81,11 @@ public class movePlayer : MonoBehaviour, movement
         // Index of the buffer where reader will return if loop is called
         loopPoint = 0;
 
+        // The point in memory where the loop will iterate
+        iterationPoint = 0;
+
         // Array for storing methods
         buffer = new System.Action[gameMaster.memory];
-
-        // Delete these
-        // buffer[0] = moveUp;
-        // buffer[1] = moveLeft;
-        // buffer[2] = moveDown;
-        // buffer[3] = moveRight;
-        // commands = 4;
-
     }
 
 
@@ -113,6 +107,8 @@ public class movePlayer : MonoBehaviour, movement
         buffer[reader]();
         reader += 1;
 
+        // If reader is on a iteration point, we jump to loop point to 
+        if (reader == iterationPoint) reader = loopPoint;
         // halt excecution if the reader reaches the end of commands
         if (reader >= writer) halt();
     }
@@ -147,8 +143,8 @@ public class movePlayer : MonoBehaviour, movement
 
                 if (Input.GetKeyDown(KeyCode.Space)) addToBuffer(skipMove);
                 if (Input.GetKeyDown(KeyCode.H)) addToBuffer(halt);
-                if (Input.GetKeyDown(KeyCode.L)) addToBuffer(loop);
-                if (Input.GetKeyDown(KeyCode.I)) addToBuffer(setLoopPoint);
+                if (Input.GetKeyDown(KeyCode.L)) setIterationPoint();
+                if (Input.GetKeyDown(KeyCode.I)) setLoopPoint();
             }
         }
     }
