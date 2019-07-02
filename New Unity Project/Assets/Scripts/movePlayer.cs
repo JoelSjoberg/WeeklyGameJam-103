@@ -68,7 +68,11 @@ public class movePlayer : MonoBehaviour, movement
     public void halt()
     {
         gameMaster.startWait();
+        clearBuffer();
+        StartCoroutine(startInputAfterDelay());
     }
+
+
 
     public void setIterationPoint()
     {
@@ -92,8 +96,15 @@ public class movePlayer : MonoBehaviour, movement
     public void initiate()
     {
         gameMaster.startTicks();
+        
     }
 
+    IEnumerator startInputAfterDelay()
+    {
+        yield return new WaitForSeconds(3f);
+        // The start position of the last level will be deleted after reaching the goal, find it again
+        gameMaster.startInputPhase();
+    }
 
     void activateBuffer()
     {
@@ -119,23 +130,28 @@ public class movePlayer : MonoBehaviour, movement
 
     }
 
-    // Set player on startPosiiton
-    void putOnStart()
+    public void findStartPos(Vector3 pos)
     {
-        transform.position = startPosition.position;
+        startPosition = pos;
+    }
+
+    void clearBuffer()
+    {
+        buffer = new System.Action[gameMaster.memory];
+        reader = 0;
+        writer = 0;
     }
 
     // method variables
     int reader, writer, loopPoint, iterationPoint;
-    [SerializeField]Transform startPosition;
+    Vector3 startPosition;
 
     System.Action[] buffer;
 
 
     void Start()
     {
-
-        putOnStart();
+        findStartPos(transform.position);
         // The reader holds the index for which method should be excecuted
         reader = 0;
         // Writer holds the index of the current input position, can be max == length of buffer
@@ -151,6 +167,7 @@ public class movePlayer : MonoBehaviour, movement
         buffer = new System.Action[gameMaster.memory];
     }
 
+   
 
     // IN HANDLING EVENTS, ALWAYS PERFORM THE FOLLOWING
     // ADD TO EVENT
@@ -169,6 +186,9 @@ public class movePlayer : MonoBehaviour, movement
     {
         if (gameMaster.phase == Phase.input)
         {
+            // Lock player to start position
+            transform.position = Vector3.Lerp(transform.position, startPosition, 0.3f);
+
             // Start the excecution
             if (Input.GetKeyDown(KeyCode.LeftControl))
             {

@@ -17,12 +17,13 @@ public class goal : MonoBehaviour
         {
             // Play finish animation
             print("Player reached goal");
-            
 
+            other.GetComponent<movePlayer>().findStartPos(transform.position);
             // Load next level on top of this one.
 
             SceneManager.LoadScene(level, LoadSceneMode.Additive);
 
+            gameMaster.error -= 10;
             sceneLevel = GameObject.FindGameObjectWithTag("level");
             DestroyLevel();
             gameMaster.GoalReached();

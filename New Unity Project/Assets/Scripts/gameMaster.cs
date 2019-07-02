@@ -32,6 +32,8 @@
     public static int memory = 10;
 
     public static float tickSpeed = 1f;
+
+    public static int error = 0;
 }
 
 public enum Phase

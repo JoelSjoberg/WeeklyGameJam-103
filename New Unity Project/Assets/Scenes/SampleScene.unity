@@ -181,12 +181,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!4 &380150446 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5027599343998011728, guid: 5ae0370a20af4e340a34ff048451bfee,
-    type: 3}
-  m_PrefabInstance: {fileID: 5027599344289033214}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &534669902
 GameObject:
   m_ObjectHideFlags: 0
@@ -703,7 +697,6 @@ MonoBehaviour:
   layer:
     serializedVersion: 2
     m_Bits: 512
-  startPosition: {fileID: 380150446}
 --- !u!65 &1886683077
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -927,6 +920,11 @@ PrefabInstance:
       value: Level
       objectReference: {fileID: 0}
     - target: {fileID: 5027599342827668441, guid: 5ae0370a20af4e340a34ff048451bfee,
+        type: 3}
+      propertyPath: m_TagString
+      value: level
+      objectReference: {fileID: 0}
+    - target: {fileID: 5027599343998011731, guid: 5ae0370a20af4e340a34ff048451bfee,
         type: 3}
       propertyPath: m_TagString
       value: level

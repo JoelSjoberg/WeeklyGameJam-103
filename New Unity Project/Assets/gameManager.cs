@@ -22,6 +22,7 @@ public class gameManager : MonoBehaviour
             if (counter >= gameMaster.tickSpeed)
             {
                 doTick();
+                gameMaster.error += 1;
                 counter = 0;
             }
         }

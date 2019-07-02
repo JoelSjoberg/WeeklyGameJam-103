@@ -23,10 +23,4 @@ public class anchorPosition : MonoBehaviour
     {
         transform.position = Player.position;
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
