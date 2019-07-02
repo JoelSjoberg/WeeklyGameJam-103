@@ -11,6 +11,24 @@
 
     public static void startWait() { phase = Phase.wait; }
 
+    public delegate void begin();
+    public static event begin startLevel;
+
+    public delegate void finish();
+    public static event finish finishLevel;
+
+
+    public static void GoalReached()
+    {
+        startInputPhase();
+        finishLevel();
+    }
+
+    public static void startNextLevel()
+    {
+        startLevel();
+    }
+
     public static int memory = 10;
 
     public static float tickSpeed = 1f;
@@ -20,5 +38,7 @@ public enum Phase
 {
     input,
     tick,
-    wait
+    wait,
+    beginning,
+    finish
 }

@@ -7,17 +7,11 @@ public class gameManager : MonoBehaviour
     public delegate void tick();
     public static event tick doTick;
 
+
     float counter;
     private void Start()
     {
         counter = 0;
-        doTick += echo;
-
-    }
-
-    void echo()
-    {
-        print("tick");
     }
 
     void Update()

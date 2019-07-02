@@ -7,35 +7,64 @@ using UnityEngine;
 public class movePlayer : MonoBehaviour, movement
 {
 
+    IEnumerator lerpToPos(Vector3 dir)
+    {
+        Vector3 pos, dest;
+        pos = transform.position;
+        dest = pos + dir;
+        while((transform.position - dest).magnitude > 0.05f)
+        {
+            transform.position = Vector3.Lerp(transform.position, dest, 0.4f);
+            yield return null;
+        }
+    }
+
+    [Header("Layers the player can collide with")]
+    [SerializeField] LayerMask layer;
+    bool wallInTheWay(Vector3 dir)
+    {
+        RaycastHit hit;
+        Ray ray = new Ray(transform.position, dir);
+
+        if (Physics.Raycast(ray, 1f, layer))
+        {
+            return true;
+        }
+        return false;
+    }
+
     // Interface methods
     public void moveDown()
     {
-        transform.position -= Vector3.up;
+        //transform.position -= Vector3.up;
+        if(!wallInTheWay(-Vector3.up))StartCoroutine(lerpToPos(-Vector3.up));
     }
     
 
     public void moveLeft()
     {
-        transform.position -= Vector3.right;
+        //transform.position -= Vector3.right;
+        if (!wallInTheWay(-Vector3.right)) StartCoroutine(lerpToPos(-Vector3.right));
     }
 
     public void moveRight()
     {
-        transform.position += Vector3.right;
+        //transform.position += Vector3.right;
+        if (!wallInTheWay(Vector3.right)) StartCoroutine(lerpToPos(Vector3.right));
     }
 
     public void moveUp()
     {
-        transform.position += Vector3.up;
+        //transform.position += Vector3.up;
+        if (!wallInTheWay(Vector3.up)) StartCoroutine(lerpToPos(Vector3.up));
     }
 
-
-    // Extra commands
     public void skipMove()
     {
         return;
     }
 
+    // Extra commands
     public void halt()
     {
         gameMaster.startWait();
@@ -65,14 +94,48 @@ public class movePlayer : MonoBehaviour, movement
         gameMaster.startTicks();
     }
 
+
+    void activateBuffer()
+    {
+        buffer[reader]();
+        reader += 1;
+
+        // If reader is on a iteration point, we jump to loop point to 
+        if (reader == iterationPoint) reader = loopPoint;
+        // halt excecution if the reader reaches the end of commands
+        if (reader >= writer) halt();
+    }
+
+    void addToBuffer(System.Action method)
+    {
+        buffer[writer] = method;
+        writer += 1;
+    }
+
+    public void mutate(System.Action method)
+    {
+        // index for mutational effects, 0:left, 1:right, 2:up, 3:down
+        buffer[reader] = method;
+
+    }
+
+    // Set player on startPosiiton
+    void putOnStart()
+    {
+        transform.position = startPosition.position;
+    }
+
     // method variables
     int reader, writer, loopPoint, iterationPoint;
+    [SerializeField]Transform startPosition;
 
     System.Action[] buffer;
 
-    // Start is called before the first frame update
+
     void Start()
     {
+
+        putOnStart();
         // The reader holds the index for which method should be excecuted
         reader = 0;
         // Writer holds the index of the current input position, can be max == length of buffer
@@ -102,24 +165,6 @@ public class movePlayer : MonoBehaviour, movement
         gameManager.doTick -= activateBuffer;
     }
 
-    void activateBuffer()
-    {
-        buffer[reader]();
-        reader += 1;
-
-        // If reader is on a iteration point, we jump to loop point to 
-        if (reader == iterationPoint) reader = loopPoint;
-        // halt excecution if the reader reaches the end of commands
-        if (reader >= writer) halt();
-    }
-
-    void addToBuffer(System.Action met)
-    {
-        buffer[writer] = met;
-        writer += 1;
-    }
-
-    // Update is called once per frame
     void Update()
     {
         if (gameMaster.phase == Phase.input)
