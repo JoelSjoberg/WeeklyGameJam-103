@@ -6,6 +6,9 @@ public class bug_down : MonoBehaviour, mutationEffect
 {
     public void mutatedMethod()
     {
-        FindObjectOfType<movePlayer>().transform.position += Vector3.down;
+        movePlayer player = FindObjectOfType<movePlayer>();
+        player.mutate(player.moveDown);
     }
+
+
 }

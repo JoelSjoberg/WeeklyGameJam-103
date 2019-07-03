@@ -21,6 +21,8 @@ public class anchorPosition : MonoBehaviour
 
     void setAnchorPosition()
     {
+        
         transform.position = Player.position;
+
     }
 }

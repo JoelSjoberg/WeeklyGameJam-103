@@ -1,22 +1,34 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 
 // Should really be called user controlls!
 public class movePlayer : MonoBehaviour, movement
 {
+    // halts co-routine if other commands are given
+    bool halt_routine = false;
 
+    bool inside_routine = false;
     IEnumerator lerpToPos(Vector3 dir)
     {
+        inside_routine = true;
         Vector3 pos, dest;
         pos = transform.position;
         dest = pos + dir;
-        while((transform.position - dest).magnitude > 0.05f)
+        while((transform.position - dest).magnitude > 0.005f)
         {
+            if (halt_routine)
+            {
+                halt_routine = false;
+                break;
+            }
+
+            Debug.Log("Lerping");
             transform.position = Vector3.Lerp(transform.position, dest, 0.4f);
             yield return null;
         }
+        inside_routine = false;
     }
 
     [Header("Layers the player can collide with")]
@@ -33,10 +45,17 @@ public class movePlayer : MonoBehaviour, movement
         return false;
     }
 
+    public void resetLoopPoints()
+    {
+        loopPoint = 0;
+        iterationPoint = 0;
+    }
+
     // Interface methods
     public void moveDown()
     {
         //transform.position -= Vector3.up;
+        if (inside_routine) halt_routine = true;
         if(!wallInTheWay(-Vector3.up))StartCoroutine(lerpToPos(-Vector3.up));
     }
     
@@ -44,18 +63,21 @@ public class movePlayer : MonoBehaviour, movement
     public void moveLeft()
     {
         //transform.position -= Vector3.right;
+        if (inside_routine) halt_routine = true;
         if (!wallInTheWay(-Vector3.right)) StartCoroutine(lerpToPos(-Vector3.right));
     }
 
     public void moveRight()
     {
         //transform.position += Vector3.right;
+        if (inside_routine) halt_routine = true;
         if (!wallInTheWay(Vector3.right)) StartCoroutine(lerpToPos(Vector3.right));
     }
 
     public void moveUp()
     {
         //transform.position += Vector3.up;
+        if(inside_routine)halt_routine = true;
         if (!wallInTheWay(Vector3.up)) StartCoroutine(lerpToPos(Vector3.up));
     }
 
@@ -70,9 +92,12 @@ public class movePlayer : MonoBehaviour, movement
         gameMaster.startWait();
         clearBuffer();
         StartCoroutine(startInputAfterDelay());
+
+        // Need to reset the loops to avoid confusion!
+        loopPoint = 0;
+        iterationPoint = 0;
+
     }
-
-
 
     public void setIterationPoint()
     {
@@ -101,7 +126,9 @@ public class movePlayer : MonoBehaviour, movement
 
     IEnumerator startInputAfterDelay()
     {
-        yield return new WaitForSeconds(3f);
+        loopPoint = 0;
+        iterationPoint = 0;
+        yield return new WaitForSeconds(1.5f);
         // The start position of the last level will be deleted after reaching the goal, find it again
         gameMaster.startInputPhase();
     }
@@ -111,8 +138,18 @@ public class movePlayer : MonoBehaviour, movement
         buffer[reader]();
         reader += 1;
 
-        // If reader is on a iteration point, we jump to loop point to 
-        if (reader == iterationPoint) reader = loopPoint;
+
+        // The points represent an intervall, the loop will occur between them
+        if (iterationPoint > loopPoint)
+        {
+            if (reader == iterationPoint) reader = loopPoint;
+        }
+        if (loopPoint > iterationPoint)
+        {
+            if (reader == loopPoint) reader = iterationPoint;
+        }
+        
+        
         // halt excecution if the reader reaches the end of commands
         if (reader >= writer) halt();
     }
@@ -125,9 +162,13 @@ public class movePlayer : MonoBehaviour, movement
 
     public void mutate(System.Action method)
     {
-        // index for mutational effects, 0:left, 1:right, 2:up, 3:down
-        buffer[reader] = method;
-
+        // avoid timing conflicts
+        if (gameMaster.phase == Phase.tick)
+        {
+            buffer[reader] = method;
+            if (inside_routine) halt_routine = true; // The lerp-routine is still running, break it!
+            buffer[reader]();
+        }
     }
 
     public void findStartPos(Vector3 pos)
@@ -151,6 +192,7 @@ public class movePlayer : MonoBehaviour, movement
 
     void Start()
     {
+
         findStartPos(transform.position);
         // The reader holds the index for which method should be excecuted
         reader = 0;
@@ -165,6 +207,7 @@ public class movePlayer : MonoBehaviour, movement
 
         // Array for storing methods
         buffer = new System.Action[gameMaster.memory];
+
     }
 
    
@@ -174,16 +217,27 @@ public class movePlayer : MonoBehaviour, movement
     private void OnEnable()
     {
         gameManager.doTick += activateBuffer;
+        gameMaster.finishLevel += clearBuffer;
     }
 
     // REMOVE FROM EVENT TO AVOID ERRORS!
     private void OnDisable()
     {
         gameManager.doTick -= activateBuffer;
+        gameMaster.finishLevel -= clearBuffer;
     }
 
     void Update()
     {
+
+        if (gameMaster.phase == Phase.tick)
+        {
+            // Halt excecution if infinite loop has been created
+            if (Input.GetKeyDown(KeyCode.H)) halt();
+            if (Input.GetKeyDown(KeyCode.L)) iterationPoint = writer;
+            if (Input.GetKeyDown(KeyCode.I)) loopPoint = writer;
+        }
+
         if (gameMaster.phase == Phase.input)
         {
             // Lock player to start position
@@ -193,6 +247,10 @@ public class movePlayer : MonoBehaviour, movement
             if (Input.GetKeyDown(KeyCode.LeftControl))
             {
                 initiate();
+                for (int i = 0; i < buffer.Length; i++)
+                {
+                    print(buffer[i].Method.Name);
+                }
             }
 
             // undo last command, should not increase writer index, so just call it immediately
@@ -212,5 +270,30 @@ public class movePlayer : MonoBehaviour, movement
                 if (Input.GetKeyDown(KeyCode.I)) setLoopPoint();
             }
         }
+    }
+
+    public System.Action[] getBuffer()
+    {
+        return buffer;
+    }
+
+    public int getLoopPoint()
+    {
+        return loopPoint;
+    }
+
+    public int getIterPoint()
+    {
+        return iterationPoint;
+    }
+
+    public int getReader()
+    {
+        return reader;
+    }
+
+    public int getWriter()
+    {
+        return writer;
     }
 }

@@ -7,6 +7,7 @@ public class bug_left : MonoBehaviour, mutationEffect
     // Not the best choise, but it allows me to keep the structure simple!
     public void mutatedMethod()
     {
-        FindObjectOfType<movePlayer>().transform.position += Vector3.left;
+        movePlayer player = FindObjectOfType<movePlayer>();
+        player.mutate(player.moveLeft);
     }
 }

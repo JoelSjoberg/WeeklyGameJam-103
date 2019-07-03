@@ -8,7 +8,7 @@ public class goal : MonoBehaviour
     [SerializeField] private string level;
     GameObject sceneLevel;
     Transform goalPos;
-
+    int lvlCounter;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -16,13 +16,13 @@ public class goal : MonoBehaviour
         if (other.tag == "Player" && (gameMaster.phase == Phase.tick || gameMaster.phase == Phase.wait))
         {
             // Play finish animation
-            print("Player reached goal");
 
             other.GetComponent<movePlayer>().findStartPos(transform.position);
+            other.GetComponent<movePlayer>().resetLoopPoints(); // last minute bug fix (hopefully)
             // Load next level on top of this one.
 
-            SceneManager.LoadScene(level, LoadSceneMode.Additive);
-
+            SceneManager.LoadScene("level" + lvlCounter, LoadSceneMode.Additive);
+            lvlCounter += 1;
             gameMaster.error -= 10;
             sceneLevel = GameObject.FindGameObjectWithTag("level");
             DestroyLevel();
@@ -34,6 +34,12 @@ public class goal : MonoBehaviour
     void DestroyLevel()
     {
         Destroy(sceneLevel.gameObject, 1f);
+    }
+
+    private void Start()
+    {
+        // The levels start at 2 because bad naming convention...
+        lvlCounter = 2;
     }
 
     // Update is called once per frame

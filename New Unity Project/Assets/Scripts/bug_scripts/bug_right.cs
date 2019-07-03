@@ -6,6 +6,7 @@ public class bug_right : MonoBehaviour, mutationEffect
 {
     public void mutatedMethod()
     {
-        FindObjectOfType<movePlayer>().transform.position += Vector3.right;
+        movePlayer player = FindObjectOfType<movePlayer>();
+        player.mutate(player.moveRight);
     }
 }
