@@ -12,19 +12,21 @@ public class movePlayer : MonoBehaviour, movement
     bool inside_routine = false;
     IEnumerator lerpToPos(Vector3 dir)
     {
+        float start = Time.deltaTime;
         inside_routine = true;
         Vector3 pos, dest;
         pos = transform.position;
         dest = pos + dir;
         while((transform.position - dest).magnitude > 0.005f)
         {
+
+            if (Time.deltaTime - start > 1f) break;
             if (halt_routine)
             {
                 halt_routine = false;
                 break;
             }
 
-            Debug.Log("Lerping");
             transform.position = Vector3.Lerp(transform.position, dest, 0.4f);
             yield return null;
         }
@@ -247,10 +249,6 @@ public class movePlayer : MonoBehaviour, movement
             if (Input.GetKeyDown(KeyCode.LeftControl))
             {
                 initiate();
-                for (int i = 0; i < buffer.Length; i++)
-                {
-                    print(buffer[i].Method.Name);
-                }
             }
 
             // undo last command, should not increase writer index, so just call it immediately
