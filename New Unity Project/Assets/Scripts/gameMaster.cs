@@ -31,7 +31,7 @@
 
     public static int memory = 10;
 
-    public static float tickSpeed = 0.5f;
+    public static float tickSpeed = 0.80f;
 
     public static int error = 0;
 }

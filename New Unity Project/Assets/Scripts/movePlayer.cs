@@ -58,7 +58,7 @@ public class movePlayer : MonoBehaviour, movement
     {
         //transform.position -= Vector3.up;
         if (inside_routine) halt_routine = true;
-        if(!wallInTheWay(-Vector3.up))StartCoroutine(lerpToPos(-Vector3.up));
+        if (!wallInTheWay(-Vector3.up)) transform.position -= Vector3.up;// StartCoroutine(lerpToPos(-Vector3.up));
     }
     
 
@@ -66,21 +66,21 @@ public class movePlayer : MonoBehaviour, movement
     {
         //transform.position -= Vector3.right;
         if (inside_routine) halt_routine = true;
-        if (!wallInTheWay(-Vector3.right)) StartCoroutine(lerpToPos(-Vector3.right));
+        if (!wallInTheWay(-Vector3.right)) transform.position -= Vector3.right;//StartCoroutine(lerpToPos(-Vector3.right));
     }
 
     public void moveRight()
     {
         //transform.position += Vector3.right;
         if (inside_routine) halt_routine = true;
-        if (!wallInTheWay(Vector3.right)) StartCoroutine(lerpToPos(Vector3.right));
+        if (!wallInTheWay(Vector3.right)) transform.position += Vector3.right; // StartCoroutine(lerpToPos(Vector3.right));
     }
 
     public void moveUp()
     {
         //transform.position += Vector3.up;
         if(inside_routine)halt_routine = true;
-        if (!wallInTheWay(Vector3.up)) StartCoroutine(lerpToPos(Vector3.up));
+        if (!wallInTheWay(Vector3.up)) transform.position += Vector3.up; // StartCoroutine(lerpToPos(Vector3.up));
     }
 
     public void skipMove()
