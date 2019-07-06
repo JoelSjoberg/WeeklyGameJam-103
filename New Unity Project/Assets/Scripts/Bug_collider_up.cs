@@ -8,7 +8,7 @@ public class Bug_collider_up : bug_up
     {
         if (other.tag == "Player")
         {
-            other.GetComponent<movePlayer>().mutate(mutatedMethod);
+            mutatedMethod();
         }
     }
 }

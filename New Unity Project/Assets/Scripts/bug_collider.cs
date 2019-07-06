@@ -10,7 +10,8 @@ public class bug_collider : bug_left
     {
         if (other.tag == "Player")
         {
-            other.GetComponent<movePlayer>().mutate(mutatedMethod);
+            //other.GetComponent<movePlayer>().mutate(mutatedMethod);
+            mutatedMethod();
         }
     }
 }

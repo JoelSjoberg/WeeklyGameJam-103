@@ -8,13 +8,7 @@ public class deleteCanvas : MonoBehaviour
     private void Start()
     {
         c = FindObjectOfType<Canvas>();
-
-        Destroy(c.gameObject);
+        c.gameObject.SetActive(false);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

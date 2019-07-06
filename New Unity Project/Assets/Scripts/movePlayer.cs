@@ -6,42 +6,17 @@ using UnityEngine.UI;
 // Should really be called user controlls!
 public class movePlayer : MonoBehaviour, movement
 {
-    // halts co-routine if other commands are given
-    bool halt_routine = false;
-
-    bool inside_routine = false;
-    IEnumerator lerpToPos(Vector3 dir)
-    {
-        float start = Time.deltaTime;
-        inside_routine = true;
-        Vector3 pos, dest;
-        pos = transform.position;
-        dest = pos + dir;
-        while((transform.position - dest).magnitude > 0.005f)
-        {
-
-            if (Time.deltaTime - start > 1f) break;
-            if (halt_routine)
-            {
-                halt_routine = false;
-                break;
-            }
-
-            transform.position = Vector3.Lerp(transform.position, dest, 0.4f);
-            yield return null;
-        }
-        inside_routine = false;
-    }
-
+   
     [Header("Layers the player can collide with")]
     [SerializeField] LayerMask layer;
     bool wallInTheWay(Vector3 dir)
     {
         RaycastHit hit;
         Ray ray = new Ray(transform.position, dir);
-
-        if (Physics.Raycast(ray, 1f, layer))
+        
+        if (Physics.Raycast(transform.position, dir, out hit, 0.9f, layer))
         {
+            print("Wall!");
             return true;
         }
         return false;
@@ -57,7 +32,7 @@ public class movePlayer : MonoBehaviour, movement
     public void moveDown()
     {
         //transform.position -= Vector3.up;
-        if (inside_routine) halt_routine = true;
+       
         if (!wallInTheWay(-Vector3.up)) transform.position -= Vector3.up;// StartCoroutine(lerpToPos(-Vector3.up));
     }
     
@@ -65,21 +40,18 @@ public class movePlayer : MonoBehaviour, movement
     public void moveLeft()
     {
         //transform.position -= Vector3.right;
-        if (inside_routine) halt_routine = true;
         if (!wallInTheWay(-Vector3.right)) transform.position -= Vector3.right;//StartCoroutine(lerpToPos(-Vector3.right));
     }
 
     public void moveRight()
     {
         //transform.position += Vector3.right;
-        if (inside_routine) halt_routine = true;
         if (!wallInTheWay(Vector3.right)) transform.position += Vector3.right; // StartCoroutine(lerpToPos(Vector3.right));
     }
 
     public void moveUp()
     {
         //transform.position += Vector3.up;
-        if(inside_routine)halt_routine = true;
         if (!wallInTheWay(Vector3.up)) transform.position += Vector3.up; // StartCoroutine(lerpToPos(Vector3.up));
     }
 
@@ -103,11 +75,13 @@ public class movePlayer : MonoBehaviour, movement
 
     public void setIterationPoint()
     {
+        print("iterationPoint = " + writer);
         iterationPoint = writer;
     }
 
     public void setLoopPoint()
     {
+        print("LoopPoint = " + writer);
         loopPoint = writer;
     }
 
@@ -167,9 +141,9 @@ public class movePlayer : MonoBehaviour, movement
         // avoid timing conflicts
         if (gameMaster.phase == Phase.tick)
         {
+            //if(reader < gameMaster.memory - 1) buffer[reader + 1] = method;
+            //else buffer[0] = method;
             buffer[reader] = method;
-            if (inside_routine) halt_routine = true; // The lerp-routine is still running, break it!
-            buffer[reader]();
         }
     }
 
@@ -236,14 +210,17 @@ public class movePlayer : MonoBehaviour, movement
         {
             // Halt excecution if infinite loop has been created
             if (Input.GetKeyDown(KeyCode.H)) halt();
-            if (Input.GetKeyDown(KeyCode.L)) iterationPoint = writer;
-            if (Input.GetKeyDown(KeyCode.I)) loopPoint = writer;
+            if (Input.GetKeyDown(KeyCode.L) && reader < gameMaster.memory - 1) iterationPoint = reader + 1;
+            if (Input.GetKeyDown(KeyCode.I) && reader < gameMaster.memory - 1) loopPoint = reader + 1;
         }
 
         if (gameMaster.phase == Phase.input)
         {
-            // Lock player to start position
-            transform.position = Vector3.Lerp(transform.position, startPosition, 0.3f);
+            // Lock player to start position REDUNDANT
+            transform.position = startPosition;
+
+            if (Input.GetKeyDown(KeyCode.L)) setIterationPoint();
+            if (Input.GetKeyDown(KeyCode.I)) setLoopPoint();
 
             // Start the excecution
             if (Input.GetKeyDown(KeyCode.LeftControl))
@@ -264,8 +241,6 @@ public class movePlayer : MonoBehaviour, movement
 
                 if (Input.GetKeyDown(KeyCode.Space)) addToBuffer(skipMove);
                 if (Input.GetKeyDown(KeyCode.H)) addToBuffer(halt);
-                if (Input.GetKeyDown(KeyCode.L)) setIterationPoint();
-                if (Input.GetKeyDown(KeyCode.I)) setLoopPoint();
             }
         }
     }

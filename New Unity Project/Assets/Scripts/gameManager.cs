@@ -14,7 +14,7 @@ public class gameManager : MonoBehaviour
         counter = 0;
     }
 
-    void Update()
+    void LateUpdate()
     {
         if (gameMaster.phase == Phase.tick)
         {

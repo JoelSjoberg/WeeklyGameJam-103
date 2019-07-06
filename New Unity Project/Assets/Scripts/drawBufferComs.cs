@@ -25,7 +25,7 @@ public class drawBufferComs : MonoBehaviour
             GUI.DrawTexture(new Rect(x_pos + (i * increment), y_pos, img_dim, img_dim), border.texture);
             if (buffer[i] != null)
             {
-                if ((i < player.getLoopPoint() && i > player.getIterPoint()) || (i > player.getLoopPoint() && i < player.getIterPoint()))
+                if ((i < player.getLoopPoint() && i >= player.getIterPoint()) || (i >= player.getLoopPoint() && i < player.getIterPoint()))
                 {
                     GUI.DrawTexture(new Rect(x_pos + 5 + (i * increment), y_pos, img_dim, img_dim), inLoop.texture);
                 }
@@ -40,9 +40,6 @@ public class drawBufferComs : MonoBehaviour
                 else if (buffer[i].Method.Name == "halt") GUI.DrawTexture(new Rect(x_pos + 5 + (i * increment), y_pos, img_dim, img_dim), halt.texture);
 
                 if (i == player.getReader()) GUI.DrawTexture(new Rect(x_pos + 5 + (i * increment), y_pos, img_dim, img_dim), r.texture);//{ readerPosition = new Vector2(x_pos + 5 + (i * increment), y_pos); }
-                if (i == player.getWriter()) GUI.DrawTexture(new Rect(x_pos + 5 + (i * increment), y_pos, img_dim, img_dim), w.texture); //{ writerPosition = new Vector2(x_pos + 5 + (i * increment), y_pos); }
-                if (i == player.getLoopPoint()) GUI.DrawTexture(new Rect(x_pos + 5 + (i * increment), y_pos, img_dim, img_dim), l.texture); //{ loopPosition = new Vector2(x_pos + 5 + (i * increment), y_pos); }
-                if (i == player.getIterPoint()) GUI.DrawTexture(new Rect(x_pos + 5 + (i * increment), y_pos, img_dim, img_dim), it.texture); //{ iterPosition = new Vector2(x_pos + 5 + (i * increment), y_pos); }
 
             }
         }
